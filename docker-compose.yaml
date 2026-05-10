@@ -1,0 +1,41 @@
+services:
+  traefik:
+    image: traefik:3.7.0
+    container_name: opendex-traefik
+    restart: unless-stopped
+    volumes:
+      - ./traefik/traefik.yaml:/etc/traefik/traefik.yaml:ro
+      - ./traefik/rules:/etc/traefik/rules:ro
+      - ./data/traefik:/data
+      - ./logs:/var/log/opendex
+    networks:
+      - opendex
+
+  postgres:
+    container_name: opendex-postgres
+    restart: unless-stopped
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+      - ./logs:/var/log/opendex
+    networks:
+      - opendex
+
+  radicale:
+    image: kozea/radicale:3.7.2
+    container_name: opendex-radicale
+    restart: unless-stopped
+    volumes:
+      - ./radicale/config:/etc/radicale/config:ro
+      - ./radicale/users:/etc/radicale/users:ro
+      - ./data/radicale:/var/lib/radicale
+      - ./logs:/var/log/opendex
+    networks:
+      - opendex
+
+  bifrost:
+    networks:
+      - opendex
+
+networks:
+  opendex:
+    name: opendex
