@@ -3,7 +3,7 @@ set -euo pipefail
 
 # ──────────────────────────────────────────────────────────────
 # OpenDex install script
-# Generates docker.env, Radicale htpasswd, patches ACME email, starts services.
+# Generates docker.env, Radicale htpasswd, starts services.
 # If docker.env already exists, reads existing values and only prompts for missing ones.
 # ──────────────────────────────────────────────────────────────
 

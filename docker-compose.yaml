@@ -5,7 +5,8 @@ services:
     restart: unless-stopped
     env_file: docker.env
     environment:
-      - TRAEFIK_API_DASHBOARD=false
+      - TRAEFIK_API_DASHBOARD=${TRAEFIK_DASHBOARD}
+      - TRAEFIK_API_INSECURE=${TRAEFIK_DASHBOARD}
       - TRAEFIK_LOG_LEVEL=INFO
       - TRAEFIK_LOG_FILEPATH=/var/log/opendex/traefik.log
       - TRAEFIK_ACCESSLOG_FILEPATH=/var/log/opendex/traefik-access.log
@@ -62,13 +63,6 @@ services:
       - ./radicale/config:/etc/radicale/config:ro
       - ./radicale/users:/etc/radicale/users:ro
       - ./logs:/var/log/opendex
-    networks:
-      - opendex
-
-  bifrost:
-    image: maximhq/bifrost:v1.5.0
-    container_name: opendex-bifrost
-    restart: unless-stopped
     networks:
       - opendex
 
