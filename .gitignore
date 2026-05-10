@@ -17,6 +17,7 @@ Thumbs.db
 # Python
 **/__pycache__/
 **/.venv/
+**/*.egg-info/
 
 # Node
 **/node_modules/

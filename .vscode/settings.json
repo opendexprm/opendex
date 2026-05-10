@@ -8,6 +8,9 @@
         "**/.svn": true,
         "**/.hg": true,
         "**/.DS_Store": true,
-        "**/Thumbs.db": true
+        "**/Thumbs.db": true,
+        "**/__pycache__": true,
+        "**/uv.lock": true,
+        "**/package-lock.json": true
     }
 }

@@ -1,0 +1,21 @@
+[project]
+name = "radicale-storage-postgresql"
+version = "0.1.0"
+description = "PostgreSQL storage backend for Radicale CalDAV/CardDAV server"
+requires-python = ">=3.10"
+dependencies = [
+    "sqlalchemy>=2.0",
+    "psycopg2-binary>=2.9",
+    "alembic>=1.13",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.package-data]
+radicale_storage_postgresql = [
+    "migrations/*.py",
+    "migrations/*.mako",
+    "migrations/versions/*.py",
+]
