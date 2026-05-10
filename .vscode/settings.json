@@ -1,0 +1,13 @@
+{
+	"files.associations": {
+		"docker.env": "dotenv",
+		"docker.env.example": "dotenv"
+	},
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true
+    }
+}
