@@ -1,0 +1,12 @@
+# Traefik dashboard at traefik.<DOMAIN>
+# TRAEFIK_DASHBOARD must be true in docker.env
+
+http:
+  routers:
+    traefik-dashboard:
+      rule: "Host(`traefik.{{ env "DOMAIN" }}`)"
+      service: api@internal
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt

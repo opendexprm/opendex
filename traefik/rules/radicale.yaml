@@ -1,0 +1,18 @@
+# Radicale at radicale.<DOMAIN>
+# No path prefix needed — Radicale serves at root, web UI just works
+
+http:
+  routers:
+    radicale:
+      rule: "Host(`radicale.{{ env "DOMAIN" }}`)"
+      service: radicale
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+
+  services:
+    radicale:
+      loadBalancer:
+        servers:
+          - url: "http://opendex-radicale:5232"
