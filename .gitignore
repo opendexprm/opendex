@@ -5,7 +5,7 @@ data/
 logs/
 
 # Generated secrets (created by install.sh)
-docker.env
+.env
 radicale/users
 backend/.env
 frontend/.env

@@ -1,5 +1,4 @@
 # Radicale at radicale.<DOMAIN>
-# No path prefix needed — Radicale serves at root, web UI just works
 
 http:
   routers:

@@ -43,7 +43,7 @@ services:
       POSTGRES_PASSWORD: opendex
       POSTGRES_DB: opendex
     volumes:
-      - ./data/postgres:/var/lib/postgresql/data
+      - ./data/postgres:/var/lib/postgresql
       - ./logs:/var/log/opendex
     networks:
       - opendex

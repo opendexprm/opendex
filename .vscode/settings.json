@@ -1,8 +1,4 @@
 {
-	"files.associations": {
-		"docker.env": "dotenv",
-		"docker.env.example": "dotenv"
-	},
     "files.exclude": {
         "**/.git": true,
         "**/.svn": true,
