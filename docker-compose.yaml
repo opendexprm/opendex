@@ -3,7 +3,7 @@ services:
     image: traefik:3.7.0
     container_name: opendex-traefik
     restart: unless-stopped
-    env_file: docker.env
+    env_file: .env
     environment:
       - TRAEFIK_API_DASHBOARD=${TRAEFIK_DASHBOARD}
       - TRAEFIK_API_INSECURE=false
@@ -58,6 +58,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    env_file: .env
     environment:
       RADICALE_DB_URL: postgresql+psycopg2://opendex:opendex@postgres:5432/opendex
     volumes:
