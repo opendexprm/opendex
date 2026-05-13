@@ -3,8 +3,8 @@ set -euo pipefail
 
 # ──────────────────────────────────────────────────────────────
 # OpenDex install script
-# Generates docker.env, Radicale htpasswd, starts services.
-# If docker.env already exists, reads existing values and only prompts for missing ones.
+# Generates .env, Radicale htpasswd, starts services.
+# If .env already exists, reads existing values and only prompts for missing ones.
 # ──────────────────────────────────────────────────────────────
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -22,7 +22,7 @@ ok()    { echo -e "${GREEN}[OK]${NC}    $*"; }
 warn()  { echo -e "${YELLOW}[WARN]${NC}  $*"; }
 err()   { echo -e "${RED}[ERROR]${NC} $*" >&2; }
 
-# ── Load existing docker.env ──────────────────────────────────
+# ── Load existing .env ──────────────────────────────────
 load_env() {
     if [[ -f .env ]]; then
         info "Found existing .env — loading values"

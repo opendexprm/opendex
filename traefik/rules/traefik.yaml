@@ -1,5 +1,5 @@
 # Traefik dashboard at traefik.<DOMAIN>
-# TRAEFIK_DASHBOARD must be true in docker.env
+# TRAEFIK_DASHBOARD must be true in .env
 
 http:
   routers:
