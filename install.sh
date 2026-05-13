@@ -84,6 +84,10 @@ HTTPS_PORT=${HTTPS_PORT}
 TRAEFIK_DASHBOARD=${TRAEFIK_DASHBOARD}
 RADICALE_WEB_TYPE=${RADICALE_WEB_TYPE}
 
+# PostgreSQL
+POSTGRES_USER=${POSTGRES_USER}
+POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+
 # CardDAV (Radicale)
 CARDDAV_USER=${CARDDAV_USER}
 CARDDAV_PASSWORD=${CARDDAV_PASSWORD}
@@ -109,3 +113,67 @@ main() {
     # 2. Load existing config
     load_env
 
+    # 3. Collect configuration (skip already-set values)
+    echo ""
+    info "Configure your instance (press Enter to accept defaults)"
+    echo ""
+
+    prompt_if_unset DOMAIN "Domain" ""
+    prompt_if_unset ACME_EMAIL "Let's Encrypt email" ""
+    prompt_if_unset HTTP_PORT "HTTP port" "80"
+    prompt_if_unset HTTPS_PORT "HTTPS port" "443"
+    prompt_if_unset TRAEFIK_DASHBOARD "Enable Traefik dashboard (true/false)" "false"
+    prompt_if_unset RADICALE_WEB_TYPE "Radicale web UI (internal/none)" "none"
+
+    echo ""
+    warn "Make sure these DNS records point to your server:"
+    echo "    ${DOMAIN}             -> your server IP"
+    echo "    *.${DOMAIN}           -> your server IP"
+    echo ""
+
+    echo ""
+    info "PostgreSQL credentials"
+    echo ""
+
+    prompt_if_unset POSTGRES_USER "PostgreSQL username" "opendex"
+    prompt_if_unset POSTGRES_PASSWORD "PostgreSQL password" "opendex"
+
+    echo ""
+    info "CardDAV credentials"
+    echo ""
+
+    prompt_if_unset CARDDAV_USER "CardDAV username" "opendex"
+    prompt_if_unset CARDDAV_PASSWORD "CardDAV password" ""
+
+    # 4. Create directories
+    mkdir -p data/postgres data/radicale data/traefik logs
+    chmod 777 logs
+    ok "Created data directories"
+
+    # 5. Write .env
+    write_env
+
+
+    # 9. Summary
+    echo ""
+    echo "═══════════════════════════════════════"
+    echo "         OpenDex is running!"
+    echo "═══════════════════════════════════════"
+    echo ""
+    echo -e "  ${GREEN}Radicale Web UI (If Enabled):${NC}   https://radicale.${DOMAIN}"
+    echo -e "  ${GREEN}Traefik Web UI (If Enabled):${NC}    https://traefik.${DOMAIN}/dashboard/"
+    echo ""
+    echo "  CardDAV and CalDAV sync endpoints:"
+    echo "    Server:   radicale.${DOMAIN}"
+    echo "    Username: ${CARDDAV_USER}"
+    echo "    Password: (your CardDAV password)"
+    echo ""
+    echo "  Credentials saved to .env"
+    echo ""
+    echo "  To stop:   docker compose down"
+    echo "  To start:  docker compose up -d"
+    echo "  Logs:      docker compose logs -f"
+    echo ""
+}
+
+main "$@"

@@ -38,13 +38,25 @@ services:
     image: postgres:18-alpine
     container_name: opendex-postgres
     restart: unless-stopped
+    env_file: .env
     environment:
-      POSTGRES_USER: opendex
-      POSTGRES_PASSWORD: opendex
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: opendex
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        LOG=/var/log/opendex/postgres.log
+        [ -f "$$LOG" ] && mv "$$LOG" "/var/log/opendex/postgres.$$(date +%Y%m%d_%H%M%S).log"
+        exec docker-entrypoint.sh postgres 2>&1 | tee "$$LOG"
     volumes:
       - ./data/postgres:/var/lib/postgresql
       - ./logs:/var/log/opendex
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
     networks:
       - opendex
 
@@ -55,16 +67,42 @@ services:
     image: opendex-radicale:latest
     container_name: opendex-radicale
     restart: unless-stopped
+    init: true             # run tini as PID 1 for proper signal forwarding and zombie reaping
+    security_opt:
+      - no-new-privileges:true  # prevent privilege escalation via setuid binaries after startup
+    cap_drop:
+      - ALL              # drop all default Linux capabilities; add back only what's needed below
+    cap_add:
+      - SETUID           # switch to radicale user (UID 1000) on startup
+      - SETGID           # switch to radicale group on startup
+      - CHOWN            # set ownership on collection files
+      - KILL             # allow signal passing between tini and the radicale process
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+          pids: 50 # fork-bomb mitigation; radicale is single-threaded and needs far fewer
     depends_on:
       postgres:
         condition: service_healthy
     env_file: .env
     environment:
-      RADICALE_DB_URL: postgresql+psycopg2://opendex:opendex@postgres:5432/opendex
+      RADICALE_DB_URL: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/opendex
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        LOG=/var/log/opendex/radicale.log
+        [ -f "$$LOG" ] && mv "$$LOG" "/var/log/opendex/radicale.$$(date +%Y%m%d_%H%M%S).log"
+        exec /app/bin/python /app/bin/radicale --hosts 0.0.0.0:5232 2>&1 | tee "$$LOG"
     volumes:
       - ./radicale/config:/etc/radicale/config:ro
       - ./radicale/users:/etc/radicale/users:ro
       - ./logs:/var/log/opendex
+    healthcheck:
+      test: ["CMD-SHELL", "python3 -c \"import urllib.request; urllib.request.urlopen('http://localhost:5232')\""]
+      interval: 30s
+      timeout: 3s
+      retries: 3
     networks:
       - opendex
 
