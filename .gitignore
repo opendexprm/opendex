@@ -7,8 +7,6 @@ logs/
 # Generated secrets (created by install.sh)
 .env
 radicale/users
-backend/.env
-frontend/.env
 
 # OS
 .DS_Store

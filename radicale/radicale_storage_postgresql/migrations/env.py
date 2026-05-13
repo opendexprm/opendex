@@ -3,7 +3,7 @@
 
 Supports two execution modes:
   1. CLI       — `cd radicale/storage-postgresql && alembic upgrade head`
-                 reads sqlalchemy.url from alembic.ini (or RADICALE_DB_URL env var)
+                 reads sqlalchemy.url from alembic.ini (or DATABASE_URL env var)
   2. Plugin    — called programmatically from Storage.__init__() at Radicale startup;
                  the engine is passed via config.attributes["connection"]
 """
@@ -40,7 +40,7 @@ target_metadata = Base.metadata
 def _get_url() -> str:
     """Resolve the database URL — env var takes precedence over alembic.ini."""
     return os.environ.get(
-        "RADICALE_DB_URL",
+        "DATABASE_URL",
         config.get_main_option("sqlalchemy.url", ""),
     )
 

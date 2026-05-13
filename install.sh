@@ -91,6 +91,9 @@ POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
 # CardDAV (Radicale)
 CARDDAV_USER=${CARDDAV_USER}
 CARDDAV_PASSWORD=${CARDDAV_PASSWORD}
+
+# Web UI
+WEB_UI_PASSWORD=${WEB_UI_PASSWORD}
 EOF
 
     chmod 600 .env
@@ -145,6 +148,12 @@ main() {
     prompt_if_unset CARDDAV_USER "CardDAV username" "opendex"
     prompt_if_unset CARDDAV_PASSWORD "CardDAV password" ""
 
+    echo ""
+    info "Web UI credentials"
+    echo ""
+
+    prompt_if_unset WEB_UI_PASSWORD "Web UI password" ""
+
     # 4. Create directories
     mkdir -p data/postgres data/radicale data/traefik logs
     chmod 777 logs
@@ -153,6 +162,10 @@ main() {
     # 5. Write .env
     write_env
 
+    # 7. Pull images & start
+    echo ""
+    info "Starting services..."
+    docker compose up -d
 
     # 9. Summary
     echo ""
@@ -162,11 +175,16 @@ main() {
     echo ""
     echo -e "  ${GREEN}Radicale Web UI (If Enabled):${NC}   https://radicale.${DOMAIN}"
     echo -e "  ${GREEN}Traefik Web UI (If Enabled):${NC}    https://traefik.${DOMAIN}/dashboard/"
+    echo -e "  ${GREEN}OpenDex Web UI:${NC}                 https://${DOMAIN}"
     echo ""
     echo "  CardDAV and CalDAV sync endpoints:"
     echo "    Server:   radicale.${DOMAIN}"
     echo "    Username: ${CARDDAV_USER}"
     echo "    Password: (your CardDAV password)"
+    echo ""
+    echo "  Web UI:"
+    echo "    URL:      https://${DOMAIN}"
+    echo "    Password: (your Web UI password)"
     echo ""
     echo "  Credentials saved to .env"
     echo ""

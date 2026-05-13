@@ -32,7 +32,7 @@ type = owner_only
 
 [storage]
 type = radicale_storage_postgresql
-# DB URL is set via RADICALE_DB_URL env var in docker-compose.yaml
+# DB URL is set via DATABASE_URL env var in docker-compose.yaml
 # Auto-create Contacts addressbook and Calendar for every new user on first login
 predefined_collections = {"contacts": {"D:displayname": "Contacts", "tag": "VADDRESSBOOK"}, "calendar": {"C:supported-calendar-component-set": "VEVENT,VJOURNAL,VTODO", "D:displayname": "Calendar", "tag": "VCALENDAR"}}
 
