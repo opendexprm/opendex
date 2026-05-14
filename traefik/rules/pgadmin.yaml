@@ -1,0 +1,17 @@
+# pgAdmin at pgadmin.<DOMAIN>
+
+http:
+  routers:
+    pgadmin:
+      rule: "Host(`pgadmin.{{ env "DOMAIN" }}`)"
+      service: pgadmin
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+
+  services:
+    pgadmin:
+      loadBalancer:
+        servers:
+          - url: "http://opendex-pgadmin:80"

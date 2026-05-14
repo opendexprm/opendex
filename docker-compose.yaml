@@ -124,6 +124,31 @@ services:
     networks:
       - opendex
 
+  pgadmin:
+    image: dpage/pgadmin4:9.15.0
+    container_name: opendex-pgadmin
+    restart: unless-stopped
+    profiles:
+      - dev
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+      PGADMIN_CONFIG_SERVER_MODE: "True"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    volumes:
+      - ./data/pgadmin:/var/lib/pgadmin
+      - ./pgadmin/servers.json:/pgadmin4/servers.json:ro
+      - ./pgadmin/pgpassfile:/pgadmin4/pgpassfile:ro
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+    networks:
+      - opendex
+
 networks:
   opendex:
     name: opendex

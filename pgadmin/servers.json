@@ -1,0 +1,14 @@
+{
+    "Servers": {
+        "1": {
+            "Name": "OpenDex PostgreSQL",
+            "Group": "Servers",
+            "Host": "opendex-postgres",
+            "Port": 5432,
+            "MaintenanceDB": "opendex",
+            "Username": "opendex",
+            "PassFile": "/pgadmin4/pgpassfile",
+            "SSLMode": "prefer"
+        }
+    }
+}

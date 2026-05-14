@@ -83,6 +83,7 @@ HTTPS_PORT=${HTTPS_PORT}
 # UI
 TRAEFIK_DASHBOARD=${TRAEFIK_DASHBOARD}
 RADICALE_WEB_TYPE=${RADICALE_WEB_TYPE}
+PGADMIN_ENABLED=${PGADMIN_ENABLED}
 
 # PostgreSQL
 POSTGRES_USER=${POSTGRES_USER}
@@ -95,6 +96,15 @@ CARDDAV_PASSWORD=${CARDDAV_PASSWORD}
 # Web UI
 WEB_UI_PASSWORD=${WEB_UI_PASSWORD}
 EOF
+
+    if [[ "${PGADMIN_ENABLED}" == "true" ]]; then
+        cat >> .env <<EOF
+
+# pgAdmin
+PGADMIN_EMAIL=${PGADMIN_EMAIL}
+PGADMIN_PASSWORD=${PGADMIN_PASSWORD}
+EOF
+    fi
 
     chmod 600 .env
     ok "Written .env"
@@ -127,6 +137,7 @@ main() {
     prompt_if_unset HTTPS_PORT "HTTPS port" "443"
     prompt_if_unset TRAEFIK_DASHBOARD "Enable Traefik dashboard (true/false)" "false"
     prompt_if_unset RADICALE_WEB_TYPE "Radicale web UI (internal/none)" "none"
+    prompt_if_unset PGADMIN_ENABLED "Enable pgAdmin database UI (true/false)" "false"
 
     echo ""
     warn "Make sure these DNS records point to your server:"
@@ -154,20 +165,62 @@ main() {
 
     prompt_if_unset WEB_UI_PASSWORD "Web UI password" ""
 
+    if [[ "${PGADMIN_ENABLED}" == "true" ]]; then
+        echo ""
+        info "pgAdmin credentials"
+        echo ""
+
+        prompt_if_unset PGADMIN_EMAIL "pgAdmin login email" "admin@${DOMAIN}"
+        prompt_if_unset PGADMIN_PASSWORD "pgAdmin login password" ""
+    fi
+
     # 4. Create directories
     mkdir -p data/postgres data/radicale data/traefik logs
+    if [[ "${PGADMIN_ENABLED}" == "true" ]]; then
+        mkdir -p data/pgadmin pgadmin
+        chown 5050:5050 data/pgadmin
+    fi
     chmod 777 logs
     ok "Created data directories"
 
     # 5. Write .env
     write_env
 
-    # 7. Pull images & start
+
+    # 7. Generate pgAdmin config (if enabled)
+    if [[ "${PGADMIN_ENABLED}" == "true" ]]; then
+        cat > pgadmin/servers.json <<PGJSON
+{
+    "Servers": {
+        "1": {
+        "Name": "OpenDex PostgreSQL",
+        "Group": "Servers",
+        "Host": "opendex-postgres",
+        "Port": 5432,
+        "MaintenanceDB": "opendex",
+        "Username": "${POSTGRES_USER}",
+        "PassFile": "/pgadmin4/pgpassfile",
+        "SSLMode": "prefer"
+        }
+    }
+}
+PGJSON
+        echo "opendex-postgres:5432:opendex:${POSTGRES_USER}:${POSTGRES_PASSWORD}" > pgadmin/pgpassfile
+        chmod 600 pgadmin/pgpassfile
+        chown 5050:5050 pgadmin/pgpassfile
+        ok "Generated pgAdmin config"
+    fi
+
+    # 8. Pull images & start
     echo ""
     info "Starting services..."
-    docker compose up -d
+    if [[ "${PGADMIN_ENABLED}" == "true" ]]; then
+        docker compose --profile dev up -d
+    else
+        docker compose up -d
+    fi
 
-    # 9. Summary
+    # 9. Wait for healthy
     echo ""
     echo "═══════════════════════════════════════"
     echo "         OpenDex is running!"
@@ -175,6 +228,9 @@ main() {
     echo ""
     echo -e "  ${GREEN}Radicale Web UI (If Enabled):${NC}   https://radicale.${DOMAIN}"
     echo -e "  ${GREEN}Traefik Web UI (If Enabled):${NC}    https://traefik.${DOMAIN}/dashboard/"
+    if [[ "${PGADMIN_ENABLED}" == "true" ]]; then
+        echo -e "  ${GREEN}pgAdmin Web UI:${NC}                 https://pgadmin.${DOMAIN}"
+    fi
     echo -e "  ${GREEN}OpenDex Web UI:${NC}                 https://${DOMAIN}"
     echo ""
     echo "  CardDAV and CalDAV sync endpoints:"
